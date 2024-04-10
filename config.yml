@@ -1,0 +1,8 @@
+token: your token
+repos:
+  - davidwter/slack
+  - davidwter/recipes
+  - davidwter/algoliaextended
+developers:
+  - davidwter
+  - davidwter2
