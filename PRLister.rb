@@ -18,15 +18,14 @@ def fetch_open_prs(client, repo, developers, include_drafts)
   prs.reject! { |pr| pr[:draft] } unless include_drafts
   prs.select! { |pr| developers.include?(pr[:user][:login]) }
   prs.map do |pr|
-    # Include the PR creation time
-    pr[:created_at] = pr.created_at
+    # Calculate the duration the PR has been open in days
+    pr[:days_open] = ((Time.now - pr[:created_at]) / (60 * 60 * 24)).round
     review_requests_response = client.pull_request_review_requests(repo, pr[:number])
     pr[:review_requests] = review_requests_response || { users: [] }
     pr[:review_comments] = client.pull_request_comments(repo, pr[:number])
     pr
   end
 end
-
 
 # Method to calculate and print delays in reviews
 def calculate_feedback_delay(pr, relevant_reviewers)
@@ -37,8 +36,8 @@ def calculate_feedback_delay(pr, relevant_reviewers)
     # Find the first comment made by the reviewer on this PR
     first_feedback = pr[:review_comments].find { |comment| comment[:user][:login] == reviewer }
     if first_feedback && first_feedback[:created_at]
-      delay = (first_feedback[:created_at] - pr[:created_at]) / (60 * 60 * 24)
-      delays << { reviewer: reviewer, delay: delay.round(2) }
+      delay = ((first_feedback[:created_at] - pr[:created_at]) / (60 * 60 * 24)).round(2)
+      delays << { reviewer: reviewer, delay: delay }
     else
       # If there's no comment from this reviewer, record delay as nil
       delays << { reviewer: reviewer, delay: nil }
@@ -46,7 +45,6 @@ def calculate_feedback_delay(pr, relevant_reviewers)
   end
   delays
 end
-
 
 # Main processing block
 all_prs = []
@@ -57,9 +55,12 @@ config['repos'].each do |repo|
   progressbar.increment
 end
 
+# Sort PRs by days open
+all_prs.sort_by! { |pr| -pr[:days_open] }
+
 # Output the PR information
 all_prs.each do |pr|
-  puts "PR: #{pr[:title]} by #{pr[:user][:login]}".colorize(:light_blue)
+  puts "PR: #{pr[:title]} by #{pr[:user][:login]} has been open for #{pr[:days_open]} days".colorize(:light_blue)
   feedback_delays = calculate_feedback_delay(pr, config['developers'])
   feedback_delays.each do |delay_info|
     if delay_info[:delay]
