@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+
+puts "Starting pr_lister executable..."  # Debug output
+require 'pr_lister'
+puts "Required pr_lister successfully"   # Debug output
+
+# Removed the __FILE__ == $PROGRAM_NAME check since this is always run as the main program
+puts "Running from executable..."      # Debug output
+PRLister::Runner.new.run

@@ -1,8 +1,102 @@
-token: your token
+# GitHub Configuration
+token: blablabla
+
+# Repository Settings
 repos:
-  - davidwter/slack
-  - davidwter/recipes
-  - davidwter/algoliaextended
+  - fieldwire/fieldwire_web_app
+  - fieldwire/fieldwire_api_super
+  - fieldwire/fieldwire_api
+  - fieldwire/fieldwire_workato_integration
+  - fieldwire/fieldwire_pdf_export
+  - fieldwire/fieldwire_3d_converter
+
+# Developer Settings
 developers:
   - davidwter
-  - davidwter2
+  - AntoineCremelFieldwire
+  - jeefujee
+  - DylanCa
+  - youssef-ziani
+  - damazigh
+  - pirlande-fw
+  - Quiwin
+
+# Pull Request Settings
+include_drafts: false  # Set to true to include draft PRs
+
+# Performance Settings
+parallel_threads: 4    # Number of parallel threads for fetching PRs
+retry_count: 3        # Number of times to retry failed API calls
+retry_delay: 2        # Delay in seconds between retries
+
+# Output Settings
+verbose: false        # Set to true for detailed output
+output_file: null     # Set to a filename to save output to file
+log_level: warn       # One of: debug, info, warn, error
+
+ai_review:
+  enabled: true
+  provider: 'openai'  # or 'claude'
+  concurrent_reviews: 1  # Number of concurrent reviews
+
+  claude:
+    api_key: 'your_claude_key'
+    model: 'claude-3-opus-20240229'
+  openai:
+    api_key: 'blablabla'
+    model: 'gpt-4-turbo-preview'
+
+  templates:
+    default: |
+      You are an expert code reviewer analyzing a Pull Request. Focus on:
+      1. Code correctness and potential bugs
+      2. Security implications
+      3. Performance considerations
+      4. Best practices and coding standards
+      5. Suggestions for improvement
+
+      Files changed:
+      {{files_changed}}
+
+      Code changes:
+      {{diff}}
+
+      Please structure your review as follows:
+      1. Summary (2-3 sentences)
+      2. Key Observations
+      3. Potential Issues
+      4. Recommendations
+      5. Code-specific comments (if any)
+
+    ruby: |
+      As a Ruby expert, review this Pull Request focusing on:
+      1. Ruby idioms and best practices
+      2. Performance implications (especially ActiveRecord usage if present)
+      3. Potential memory leaks
+      4. Test coverage
+      5. Gem version compatibility
+
+      Consider Rails best practices if this is a Rails application.
+      {{standard_review_section}}
+
+    javascript: |
+      As a JavaScript expert, review this Pull Request focusing on:
+      1. Modern JS/TS practices
+      2. Browser compatibility
+      3. Memory management
+      4. Performance optimization
+      5. Security (especially XSS prevention)
+
+      Consider framework-specific best practices if relevant.
+      {{standard_review_section}}
+
+    database: |
+      As a database expert, review these schema or query changes focusing on:
+      1. Index usage and optimization
+      2. Transaction handling
+      3. Migration safety
+      4. Query performance
+      5. Data integrity
+
+      Pay special attention to backwards compatibility and zero-downtime deployment concerns.
+      {{standard_review_section}}
